@@ -13,12 +13,14 @@ def get_connection():
     conn.row_factory = sqlite3.Row  # return dicks
     return conn
 
+#class Coche(BaseModel):
 class Coche(BaseModel):
     id_coche: int
     modelo: str
     marca: str
     consumo: float
     hp: int
+
 
 
 
@@ -118,6 +120,7 @@ def delete_coche(id_coche: int):
     return {"message": "Coche eliminado"}
 
 
+
 """
 falta averiguar 
 /coches/delete/{id_coche}
@@ -143,5 +146,9 @@ mirar si ese select para el tema del dinamismo se puede transformar en algo asi
 
 
 
-user\AppData\Local\Programs\Python\Python313\python.exe -m uvicorn rentifyAPI:app --reload
+python.exe -m uvicorn rentifyAPI:app --reload
+
+
+
+
 """
