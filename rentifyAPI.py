@@ -20,10 +20,7 @@ class Coche(BaseModel):
     consumo: float
     hp: int
 
-@app.get("/coches/{accion}/{id_prueba}")
-def get_cosas(accion:str, id_prueba: int):
-    print(accion, id_prueba)
-    return {"message": "prueba",accion: id_prueba}
+
 
 
 
@@ -126,6 +123,16 @@ falta averiguar
 /coches/delete/{id_coche}
 puede pasar a
 /coches/{accion}/{id_coche}
+
+
+@app.get("/coches/{accion}/{id_prueba}")
+def get_cosas(accion:str, id_prueba: int):
+    print(accion, id_prueba)
+    return {"message": "prueba",accion: id_prueba}
+
+crear uno nuevo para llamamiento interno de funciones
+problematica mismo endponit para actualizar insertar y mostrar
+
 
 y
 si
