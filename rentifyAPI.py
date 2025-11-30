@@ -1,6 +1,4 @@
-import pprint
 import sqlite3
-from itertools import count
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -12,7 +10,7 @@ DATABASE = "cars.sqlite"
 
 def get_connection():
     conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row  # devuelve dicts
+    conn.row_factory = sqlite3.Row  # return dicks
     return conn
 
 class Coche(BaseModel):
@@ -40,7 +38,7 @@ def get_coches():
 def get_coche(id_coche: int):
     conn = get_connection()
     row = conn.execute(
-        "SELECT * FROM coches WHERE id_coche = ?", (id_coche,)
+        "SELECT * FROM coches WHERE id_coche = ?", [id_coche]
     ).fetchone()
     conn.close()
 
@@ -114,3 +112,18 @@ def delete_coche(id_coche: int):
         raise HTTPException(status_code=404, detail="Coche no encontrado")
 
     return {"message": "Coche eliminado"}
+
+
+"""
+falta averiguar 
+/coches/delete/{id_coche}
+puede pasar a
+/coches/{accion}/{id_coche}
+
+y
+si
+        "SELECT * FROM coches WHERE id_coche = ?", [id_coche]
+mirar si ese select para el tema del dinamismo se puede transformar en algo asi
+        "SELECT * FROM ${nombre_tabla} WHERE ${id_tabla} = ?", [id_a_buscar]
+
+"""
