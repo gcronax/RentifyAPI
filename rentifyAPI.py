@@ -20,6 +20,13 @@ class Coche(BaseModel):
     consumo: float
     hp: int
 
+@app.get("/coches/{accion}/{id_prueba}")
+def get_cosas(accion:str, id_prueba: int):
+    print(accion, id_prueba)
+    return {"message": "prueba",accion: id_prueba}
+
+
+
 
 @app.get("/")
 def root():
@@ -126,4 +133,9 @@ si
 mirar si ese select para el tema del dinamismo se puede transformar en algo asi
         "SELECT * FROM ${nombre_tabla} WHERE ${id_tabla} = ?", [id_a_buscar]
 
+
+
+
+
+user\AppData\Local\Programs\Python\Python313\python.exe -m uvicorn rentifyAPI:app --reload
 """
