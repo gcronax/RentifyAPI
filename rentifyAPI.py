@@ -66,7 +66,7 @@ def get_coche(table_name: str, id: int ):
     return dict(row)
 
 
-@app.get("/coches/filter/")
+@app.get("/filter/coches/")
 def get_cochesby(marca: str = None, modelo: str = None):
     conn = get_connection()
     query = "SELECT * FROM coches WHERE 1=1"
@@ -86,12 +86,17 @@ def get_cochesby(marca: str = None, modelo: str = None):
 
 
 #post
-@app.post("/coches/insert/")
-def insert_coche(modelo: str, marca: str, consumo: float, hp: int):
+@app.post("/insert/{table_name}/")
+def insert_coche(
+        modelo: str,
+        marca: str,
+        consumo: float,
+        hp: int
+):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO coches (modelo, marca, consumo, hp) VALUES (?, ?, ?, ?)",
+        f"INSERT INTO coches (modelo, marca, consumo, hp) VALUES (?, ?, ?, ?)",
         (modelo, marca, consumo, hp),
     )
     conn.commit()
