@@ -6,6 +6,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 DATABASE = "cars.db"
+'unico campo a cambiar la ruta a la base de datos a atacar'
 
 
 def get_connection():
