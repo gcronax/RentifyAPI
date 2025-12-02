@@ -1,14 +1,19 @@
 import sqlite3
 from typing import Optional
+
+import markdown
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
+from fastapi.responses import PlainTextResponse
+from fastapi.responses import HTMLResponse
+
 
 app = FastAPI()
 
 DATABASE = "cars.db"
-'unico campo a cambiar la ruta a la base de datos a atacar'
+'Único campo a cambiar, la ruta a la base de datos a atacar'
 print("usar para arramcar la api")
-print("uvicorn rentifyAPI:app --reload")
+print("python -m uvicorn rentifyAPI:app --reload")
 
 
 def get_connection():
@@ -168,33 +173,34 @@ def delete_data(table_name: str, by_id: int):
 
 
 
+
+
+
+@app.get("/help", response_class=HTMLResponse)
+def help():
+    md = """
+# 📘 API Documentation – RentifyAPI
+
+## Endpoints disponibles
+### `GET /show/{table_name}`
+Muestra todos los registros o uno por ID.
+
+### `GET /filter/{table_name}`
+Filtra con parámetros dinámicos.
+
+### `POST /insert/{table_name}`
+Inserta un registro.
+
+### `PUT /update/{table_name}/{by_id}`
+Actualiza un registro.
+
+### `DELETE /delete/{table_name}/{by_id}`
+Elimina un registro.
 """
-falta averiguar 
-/coches/delete/{id_coche}
-puede pasar a
-/coches/{accion}/{id_coche}
 
-
-
-crear uno nuevo para llamamiento interno de funciones
-problematica mismo endponit para actualizar insertar y mostrar
-
-y
-si
-        "SELECT * FROM coches WHERE id_coche = ?", [id_coche]
-mirar si ese select para el tema del dinamismo se puede transformar en algo asi
-        "SELECT * FROM ${nombre_tabla} WHERE ${id_tabla} = ?", [id_a_buscar]
-        
-        
-           
+    html = markdown.markdown(md)
+    return html
 
 
 
 
-
-python.exe -m uvicorn rentifyAPI:app --reload
-
-
-
-
-"""
