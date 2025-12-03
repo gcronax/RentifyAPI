@@ -38,10 +38,8 @@ def execute_query(query: str, params=None):
         conn.close()
         return rows
     except sqlite3.OperationalError as e:
-        # Errores típicos: tabla no existe, columna incorrecta
         raise HTTPException(status_code=400, detail=f"Error SQL: {str(e)}")
     except sqlite3.IntegrityError as e:
-        # errores de claves foráneas, duplicados, etc.
         raise HTTPException(status_code=409, detail=f"Violación de integridad: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
@@ -101,6 +99,7 @@ def get_data(table_name: str, by_id: Optional[int] = None):
 
 @app.get("/filter/{table_name}")
 def get_data_where(table_name: str,  request: Request):
+    validate_table_name(table_name)
 
     query_params = dict(request.query_params)
     print(query_params)
@@ -124,6 +123,7 @@ def get_data_where(table_name: str,  request: Request):
 #post
 @app.post("/{table_name}/")
 def insert_data(table_name: str,  request: Request):
+    validate_table_name(table_name)
 
     query_params = dict(request.query_params)
     print(query_params)
@@ -144,24 +144,27 @@ def insert_data(table_name: str,  request: Request):
 
     query = f"INSERT INTO {table_name} ({headers}) VALUES ({values})"
 
-
     try:
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(query, insert_values)
         conn.commit()
-
+        new_id = cur.lastrowid
+        conn.close()
+        return {"message": "Registro creado", "id": new_id}
+    except sqlite3.OperationalError as e:
+        raise HTTPException(status_code=400, detail=f"Error SQL: {str(e)}")
+    except sqlite3.IntegrityError as e:
+        raise HTTPException(status_code=409, detail=f"Error de integridad: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=456, detail="Datos erróneos")
+        raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
 
-    nuevo_id = cur.lastrowid
-    conn.close()
 
-    return {"message": "Registro creado", "id": nuevo_id}
 
 #put
 @app.put("/{table_name}/{by_id}")
 def update_data(table_name: str, by_id: int,  request: Request):
+    validate_table_name(table_name)
 
     query_params = dict(request.query_params)
     print(query_params)
@@ -183,17 +186,19 @@ def update_data(table_name: str, by_id: int,  request: Request):
     insert_values.append(by_id)
 
 
-
     try:
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute(query, insert_values)
         conn.commit()
+        updated = cursor.rowcount
+        conn.close()
+    except sqlite3.OperationalError as e:
+        raise HTTPException(status_code=400, detail=f"Error SQL: {str(e)}")
+    except sqlite3.IntegrityError as e:
+        raise HTTPException(status_code=409, detail=f"Error de integridad: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=456, detail="Datos erróneos")
-
-    updated = cursor.rowcount
-    conn.close()
+        raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
 
     if updated == 0:
         raise HTTPException(status_code=404, detail="Registro no encontrado")
@@ -203,16 +208,29 @@ def update_data(table_name: str, by_id: int,  request: Request):
 #delete
 @app.delete("/{table_name}/{by_id}")
 def delete_data(table_name: str, by_id: int):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(f"DELETE FROM {table_name} WHERE {id_table(table_name)} = ?", [by_id])
-    conn.commit()
-    conn.close()
+    validate_table_name(table_name)
+
+
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM {table_name} WHERE {id_table(table_name)} = ?", [by_id])
+        conn.commit()
+        conn.close()
+
+    except sqlite3.OperationalError as e:
+        raise HTTPException(status_code=400, detail=f"Error SQL: {str(e)}")
+    except sqlite3.IntegrityError as e:
+        raise HTTPException(status_code=409, detail=f"Error de integridad: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
+
 
     if cursor.rowcount == 0:
-        raise HTTPException(status_code=404, detail="Coche no encontrado")
+        raise HTTPException(status_code=404, detail=f"Elemento de {table_name} no encontrado")
 
-    return {"message": "Coche eliminado"}
+    return {"message": "Elemento de {table_name} eliminado"}
 
 
 
