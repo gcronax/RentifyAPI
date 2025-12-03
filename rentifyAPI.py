@@ -77,14 +77,7 @@ def headers_table(table_name: str):
     headers = [row["name"] for row in rows if row["name"] != id_table(table_name)]
     return headers
 
-def build_model(table_name: str):
-    """Crea un modelo Pydantic dinámicamente desde la tabla."""
-    cols = headers_table(table_name)
-    pk = id_table(table_name)
 
-    fields = {col: (Optional[str], None) for col in cols if col != pk}
-
-    return type(f"{table_name.capitalize()}Model", (BaseModel,), fields)
 
 
 @app.get("/show/{table_name}")
@@ -287,7 +280,7 @@ Elimina un registro.
 <br>
 Ejemplos:
 <br>
-/(tu_tabla)/(tu_id)
+curl -X DELETE "http://localhost:8000/users/40" -v
 """
 
     body = markdown.markdown(md)
