@@ -5,7 +5,7 @@ from typing import Optional
 import markdown
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
-
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -76,6 +76,15 @@ def headers_table(table_name: str):
 
     headers = [row["name"] for row in rows if row["name"] != id_table(table_name)]
     return headers
+
+def build_model(table_name: str):
+    """Crea un modelo Pydantic dinámicamente desde la tabla."""
+    cols = headers_table(table_name)
+    pk = id_table(table_name)
+
+    fields = {col: (Optional[str], None) for col in cols if col != pk}
+
+    return type(f"{table_name.capitalize()}Model", (BaseModel,), fields)
 
 
 @app.get("/show/{table_name}")
