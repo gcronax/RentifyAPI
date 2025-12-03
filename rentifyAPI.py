@@ -1,10 +1,9 @@
+import re
 import sqlite3
 from typing import Optional
 
 import markdown
 from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel
-from fastapi.responses import PlainTextResponse
 from fastapi.responses import HTMLResponse
 
 
@@ -17,13 +16,47 @@ print("python -m uvicorn rentifyAPI:app --reload")
 
 
 def get_connection():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row  # return dicks
-    return conn
+    try:
+        conn = sqlite3.connect(DATABASE)
+        conn.row_factory = sqlite3.Row
+        return conn
+    except sqlite3.Error as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al conectar con la base de datos: {str(e)}"
+        )
+
+def execute_query(query: str, params=None):
+    if params is None:
+        params = []
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(query, params)
+        conn.commit()
+        rows = cur.fetchall()
+        conn.close()
+        return rows
+    except sqlite3.OperationalError as e:
+        # Errores típicos: tabla no existe, columna incorrecta
+        raise HTTPException(status_code=400, detail=f"Error SQL: {str(e)}")
+    except sqlite3.IntegrityError as e:
+        # errores de claves foráneas, duplicados, etc.
+        raise HTTPException(status_code=409, detail=f"Violación de integridad: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error inesperado: {str(e)}")
+
+
+
+
 
 @app.get("/")
 def root():
     return {"message": "API Rentify cooking"}
+
+def validate_table_name(table_name: str):
+    if not re.match(r"^[a-z]+$", table_name):
+        raise HTTPException(status_code=400, detail="Nombre de tabla inválido")
 
 def id_table(table_name: str):
     conn = get_connection()
@@ -49,22 +82,21 @@ def headers_table(table_name: str):
 
 @app.get("/show/{table_name}")
 def get_data(table_name: str, by_id: Optional[int] = None):
-    if by_id is not None:
-        conn = get_connection()
-        row = conn.execute(
-            f"SELECT * FROM {table_name} WHERE {id_table(table_name)} = ?", [by_id]
-        ).fetchone()
-        conn.close()
+    validate_table_name(table_name)
 
-        if row is None:
-            raise HTTPException(status_code=404, detail="Coche no encontrado")
-
-        return dict(row)
-    else:
-        conn = get_connection()
-        rows = conn.execute(f"SELECT * FROM {table_name}").fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
+    try:
+        if by_id:
+            query = f"SELECT * FROM {table_name} WHERE {id_table(table_name)} = ?"
+            rows = execute_query(query, [by_id])
+            if not rows:
+                raise HTTPException(status_code=404, detail="Registro no encontrado")
+            return dict(rows[0])
+        else:
+            query = f"SELECT * FROM {table_name}"
+            rows = execute_query(query)
+            return [dict(row) for row in rows]
+    except Exception as e:
+        raise e
 
 
 @app.get("/filter/{table_name}")
@@ -209,14 +241,14 @@ Ejemplos:
 <br>
 /filter/(tu_tabla)?cabezera1=info1&cabezera2=info2
 
-### `POST /insert/{table_name}`
+### `POST /{table_name}`
 Inserta un registro.
 <br>
 Ejemplos:
 <br>
 /(tu_tabla)?cabezera1=info1&cabezera2=info2&cabezera3=info3&cabezera4=info4
 
-### `PUT /update/{table_name}/{by_id}`
+### `PUT /{table_name}/{by_id}`
 Actualiza un registro.
 <br>
 Ejemplos:
@@ -228,7 +260,7 @@ Elimina un registro.
 <br>
 Ejemplos:
 <br>
-/delete/(tu_tabla)/(tu_id)
+/(tu_tabla)/(tu_id)
 """
 
     body = markdown.markdown(md)
