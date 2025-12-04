@@ -451,7 +451,7 @@ Ejemplos:
         unique = unique_header(table_name)
         not_null = not_null_header(table_name)
 
-        fk_name=[row["column"] for row in fk]
+        fk_column=[row["column"] for row in fk]
 
         aux = """"""
         for campo in campos:
@@ -463,7 +463,7 @@ Ejemplos:
             if campo in not_null:
                 aux += f""" **notNULL**"""
                 void=True
-            if campo in fk_name:
+            if campo in fk_column:
                 aux += f""" **foreignKEY**"""
                 void=True
             if not void:
