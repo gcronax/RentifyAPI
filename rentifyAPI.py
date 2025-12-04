@@ -430,7 +430,7 @@ curl -X DELETE "http://localhost:8000/users/40" -v
 
 
 
-        md=f"""id   ->   {idtable} {aux}   """
+        md=f"""{idtable} -> primaryKEY {aux}   """
 
 
     body = markdown.markdown(md)
