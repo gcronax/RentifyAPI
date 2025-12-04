@@ -410,21 +410,19 @@ curl -X DELETE "http://localhost:8000/users/40" -v
         unique = unique_header(table_name)
         not_null = not_null_header(table_name)
 
+        fk_name=[row["column"] for row in fk]
 
-
-
-
-
-
-
-
-        md=f"""id->   {idtable}    
-        <br>  campos->   {campos}
-        <br>  fk-> {fk}
+        aux=f"""<br>  campos->   {campos}
+        <br>  fk-> {fk_name}
         <br>  unique-> {unique}
-        <br>  not_null-> {not_null}
+        <br>  not_null-> {not_null}"""
 
-"""
+
+
+
+
+
+        md=f"""id   ->   {idtable} {aux}   """
 
 
     body = markdown.markdown(md)
