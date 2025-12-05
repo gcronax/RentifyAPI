@@ -465,7 +465,12 @@ Inserta un registro.
 <br>
 Ejemplos:
 <br>
-curl -X POST "http://localhost:8000/users/?nif=2132s13d&email=asdasd&password=asdasd" -v
+curl -X POST "http://localhost:8000/users"      -H "Content-Type: application/json"      -d '{
+           "nif": "21edfd32s13d",
+           "email": "asererdrasd@gmail.com",
+           "password": "passwordblablabla"
+         }' -v
+
 
 ### `PUT /{table_name}/{by_id}`
 Actualiza un registro.
