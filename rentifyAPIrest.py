@@ -431,7 +431,7 @@ def delete_data(table_name: str, by_id: int):
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail=f"Elemento de {table_name} no encontrado")
 
-    return {"message": "Elemento de {table_name} eliminado"}
+    return {"message": f"Elemento de {table_name} eliminado"}
 
 
 
