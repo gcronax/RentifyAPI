@@ -289,25 +289,33 @@ def get_data_where(table_name: str,  request: Request):
 
 #post
 @app.post("/{table_name}")
-def insert_data(table_name: str,  request: Request):
+async def insert_data(table_name: str,  request: Request):
     validate_table_name(table_name)
 
     body = await request.json()
     print("Body JSON:", body)
 
-
     query_params = dict(request.query_params)
-    print(query_params)
+    print("Body REQUEST:",query_params)
 
     insert_headers = []
     insert_values = []
 
-    for name in headers_table(table_name):
-        if name in query_params:
-            if query_params[name] == "":
-                raise HTTPException(status_code=400, detail=f"{name} vacio")
-            insert_headers.append(name)
-            insert_values.append(query_params[name])
+    if body is not None:
+        for name in headers_table(table_name):
+            if name in body:
+                if body[name] == "":
+                    raise HTTPException(status_code=400, detail=f"{name} vacio")
+                insert_headers.append(name)
+                insert_values.append(body[name])
+
+    if query_params is not None:
+        for name in headers_table(table_name):
+            if name in query_params:
+                if query_params[name] == "":
+                    raise HTTPException(status_code=400, detail=f"{name} vacio")
+                insert_headers.append(name)
+                insert_values.append(query_params[name])
 
     if not insert_headers:
         raise HTTPException(status_code=400, detail="No se enviaron datos válidos para insertar")
@@ -338,8 +346,11 @@ def insert_data(table_name: str,  request: Request):
 
 #put
 @app.put("/{table_name}/{by_id}")
-def update_data(table_name: str, by_id: int,  request: Request):
+async def update_data(table_name: str, by_id: int, request: Request):
     validate_table_name(table_name)
+
+    body = await request.json()
+    print("Body JSON:", body)
 
     query_params = dict(request.query_params)
     print(query_params)
@@ -347,12 +358,21 @@ def update_data(table_name: str, by_id: int,  request: Request):
     insert_headers = []
     insert_values = []
 
-    for name in headers_table(table_name):
-        if name in query_params:
-            if query_params[name] == "":
-                raise HTTPException(status_code=400, detail=f"{name} vacio")
-            insert_headers.append(f"{name} = ?")
-            insert_values.append(query_params[name])
+    if body is not None:
+        for name in headers_table(table_name):
+            if name in body:
+                if body[name] == "":
+                    raise HTTPException(status_code=400, detail=f"{name} vacio")
+                insert_headers.append(f"{name} = ?")
+                insert_values.append(body[name])
+
+    if query_params is not None:
+        for name in headers_table(table_name):
+            if name in query_params:
+                if query_params[name] == "":
+                    raise HTTPException(status_code=400, detail=f"{name} vacio")
+                insert_headers.append(f"{name} = ?")
+                insert_values.append(query_params[name])
 
     if not insert_headers:
         raise HTTPException(status_code=400, detail="No se enviaron datos válidos para insertar")
