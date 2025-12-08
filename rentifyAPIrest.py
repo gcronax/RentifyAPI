@@ -405,20 +405,16 @@ def helpx(table_name: Optional[str] = None):
 ## Endpoints disponibles
 
 ### `GET /show/{table_name}`
-Muestra todos los registros o uno por ID.
-<br>
-Ejemplos:
-<br>
-/show/(tu_tabla)
-<br>
-/show/(tu_tabla)?by_id==(tu_id)
+Muestra todos los registros o uno por ID y 
+filtra con parámetros dinámicos.
 
-### `GET /filter/{table_name}`
-Filtra con parámetros dinámicos.
-<br>
 Ejemplos:
 <br>
-/filter/(tu_tabla)?cabezera1=info1&cabezera2=info2
+/(tu_tabla)
+<br>
+/(tu_tabla)?(tu_id)
+<br>
+/(tu_tabla)?cabezera1=info1&cabezera2=info2
 
 ### `POST /{table_name}`
 Inserta un registro.
@@ -437,7 +433,11 @@ Actualiza un registro.
 <br>
 Ejemplos:
 <br>
-curl -X PUT "http://localhost:8000/users/15/?email=adasd&password=asdasd&address_fk=20" -v
+curl -X PUT "http://localhost:8000/users"      -H "Content-Type: application/json"      -d '{
+           "nif": "21edfd32s13d",
+           "email": "asererdrasd@gmail.com",
+           "password": "passwordblablabla"
+         }' -v
 
 ### `DELETE /{table_name}/{by_id}`
 Elimina un registro.
