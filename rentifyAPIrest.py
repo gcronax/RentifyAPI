@@ -4,7 +4,7 @@ from typing import Optional
  
 import markdown
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 
 app = FastAPI()
 
@@ -535,6 +535,16 @@ Documentación automática hecha por la propia API
     """
 
     return html
+
+@app.get("/pdf")
+async def get_pdf():
+    pdf_path = "resources/pdfs/pdfTEST.pdf"
+    return FileResponse(pdf_path, media_type="application/pdf")
+
+@app.get("/image")
+async def get_image():
+    image_path = "resources/images/imagTest.jpg"
+    return FileResponse(image_path, media_type="image/png")
 
 @app.get("/{table_name}")
 def get_data(table_name: str, request: Request):
