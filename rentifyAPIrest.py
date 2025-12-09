@@ -433,11 +433,14 @@ Actualiza un registro.
 <br>
 Ejemplos:
 <br>
-curl -X PUT "http://localhost:8000/users"      -H "Content-Type: application/json"      -d '{
-           "nif": "21edfd32s13d",
-           "email": "asererdrasd@gmail.com",
-           "password": "passwordblablabla"
-         }' -v
+curl -X PUT "http://localhost:8000/users/123" 
+  -H "Content-Type: application/json" 
+  -d '{
+    "nif": "21edfd32s13d",
+    "email": "asererdrasd@gmail.com",
+    "password": "passwordblablabla"
+  }' 
+  -v
 
 ### `DELETE /{table_name}/{by_id}`
 Elimina un registro.
