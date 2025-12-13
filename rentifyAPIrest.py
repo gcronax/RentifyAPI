@@ -5,6 +5,11 @@ from typing import Optional
 import markdown
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, FileResponse
+from pydantic import BaseModel
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 app = FastAPI()
 
@@ -266,12 +271,15 @@ def headers_table(table_name: str):
 
 
 @app.post("/login")
-def login_user( email: str, password: str):
+def login_user(data: LoginRequest):
+
+    email = data.email
+    password = data.password
 
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email y password obligatorios")
 
-    query = f"""
+    query = """
         SELECT * FROM users
         WHERE email = ? AND password = ?
         LIMIT 1
@@ -280,7 +288,7 @@ def login_user( email: str, password: str):
     rows = execute_query(query, [email, password])
 
     if not rows:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     return dict(rows[0])
 
